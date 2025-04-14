@@ -41,20 +41,30 @@ class Reservation < ApplicationRecord
   def confirm!
     return false unless exam_schedule.can_reserve?(number_of_people)
     
-    transaction do
-      update!(status: 'confirmed')
-      exam_schedule.increment!(:current_reservations, number_of_people)
+    ActiveRecord::Base.transaction do
+      exam_schedule.with_lock do
+        if exam_schedule.can_reserve?(number_of_people)
+          update!(status: 'confirmed')
+          exam_schedule.increment!(:current_reservations, number_of_people)
+          true
+        else
+          false
+        end
+      end
     end
   end
 
-  # def cancel!
-  #   return false if status == 'cancelled'
+  def cancel!
+    return false if status == 'cancelled'
     
-  #   transaction do
-  #     update!(status: 'cancelled')
-  #     exam_schedule.decrement!(:current_reservations, number_of_people) if status == 'confirmed'
-  #   end
-  # end
+    ActiveRecord::Base.transaction do
+      exam_schedule.with_lock do
+        update!(status: 'cancelled')
+        exam_schedule.decrement!(:current_reservations, number_of_people) if status == 'confirmed'
+        true
+      end
+    end
+  end
 
   private
 

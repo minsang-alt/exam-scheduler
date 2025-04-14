@@ -19,6 +19,13 @@ class ExamSchedule < ApplicationRecord
     available_capacity >= number_of_people
   end
 
+  # 현 시점부터 3일 이후로 예약 가능한 시간대 반환
+  def self.available_schedules
+    where('start_time > ?', 3.days.from_now)
+      .where(is_available: true)
+      .order(start_time: :asc)
+  end
+
   private
 
   # 종료 시간이 시작 시간 이후여야 함
