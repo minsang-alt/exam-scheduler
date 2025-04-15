@@ -11,4 +11,23 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  namespace :api do
+    namespace :v1 do
+      # 시험 일정 관련
+      resources :exam_schedules, only: [:index, :show]
+
+      # 예약 관련
+      resources :reservations, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :confirm  # 예약 확정
+          post :cancel   # 예약 취소
+        end
+      end
+
+      # 인증 관련
+      post 'auth/login', to: 'auth#login'      # 로그인
+      post 'auth/register', to: 'auth#register' # 회원가입
+    end
+  end
 end

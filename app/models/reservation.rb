@@ -42,28 +42,34 @@ class Reservation < ApplicationRecord
     return false unless exam_schedule.can_reserve?(number_of_people)
     
     ActiveRecord::Base.transaction do
-      exam_schedule.with_lock do
-        if exam_schedule.can_reserve?(number_of_people)
-          update!(status: 'confirmed')
-          exam_schedule.increment!(:current_reservations, number_of_people)
-          true
-        else
-          false
-        end
+      # 비관적 락 적용
+      locked_schedule = ExamSchedule.lock('FOR UPDATE').find(exam_schedule.id)
+      
+      if locked_schedule.can_reserve?(number_of_people)
+        update!(status: 'confirmed')
+        locked_schedule.increment!(:current_reservations, number_of_people)
+        true
+      else
+        false
       end
     end
+  rescue ActiveRecord::LockWaitTimeout
+    false
   end
 
   def cancel!
     return false if status == 'cancelled'
     
     ActiveRecord::Base.transaction do
-      exam_schedule.with_lock do
-        update!(status: 'cancelled')
-        exam_schedule.decrement!(:current_reservations, number_of_people) if status == 'confirmed'
-        true
-      end
+      # 비관적 락 적용
+      locked_schedule = ExamSchedule.lock('FOR UPDATE').find(exam_schedule.id)
+      
+      update!(status: 'cancelled')
+      locked_schedule.decrement!(:current_reservations, number_of_people) if status == 'confirmed'
+      true
     end
+  rescue ActiveRecord::LockWaitTimeout
+    false
   end
 
   private
