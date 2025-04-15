@@ -15,6 +15,7 @@ class ExamSchedule < ApplicationRecord
 
   # 예약 가능한 인원 수를 반환, 3일 이후부터 예약 가능
   def can_reserve?(number_of_people)
+    number_of_people = number_of_people.to_i
     return false if start_time < 3.days.from_now
     available_capacity >= number_of_people
   end
