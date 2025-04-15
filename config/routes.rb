@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       # 인증 관련
       post 'auth/login', to: 'auth#login'      # 로그인
       post 'auth/register', to: 'auth#register' # 회원가입
+      delete 'auth/logout', to: 'auth#logout'   # 로그아웃
     end
   end
 end
