@@ -22,7 +22,7 @@ class ExamSchedule < ApplicationRecord
 
   # 현 시점부터 3일 이후로 예약 가능한 시간대 반환
   def self.available_schedules
-    where('start_time > ?', 3.days.from_now)
+    where("start_time > ?", 3.days.from_now)
       .where(is_available: true)
       .order(start_time: :asc)
   end
@@ -50,4 +50,4 @@ class ExamSchedule < ApplicationRecord
       errors.add(:current_reservations, "최대 인원 수를 초과할 수 없습니다.")
     end
   end
-end 
+end

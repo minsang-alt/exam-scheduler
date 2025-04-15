@@ -6,5 +6,4 @@ class Customer < ApplicationRecord
   validates :email, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone, format: { with: /\A\d{10,11}\z/ }
   validates :password, presence: true, length: { minimum: 6 }, on: :create
-
-end 
+end

@@ -11,4 +11,4 @@ class CreateReservations < ActiveRecord::Migration[7.1]
 
     add_index :reservations, :status
   end
-end 
+end

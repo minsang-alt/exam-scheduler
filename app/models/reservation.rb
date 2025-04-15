@@ -14,7 +14,7 @@ class Reservation < ApplicationRecord
   def can_be_modified_by?(user)
     return true if user.is_a?(Admin)
     return false unless user.is_a?(Customer)
-    customer_id == user.id && status == 'pending'
+    customer_id == user.id && status == "pending"
   end
 
   # 예약 삭제 가능 여부 확인
@@ -23,7 +23,7 @@ class Reservation < ApplicationRecord
   def can_be_deleted_by?(user)
     return true if user.is_a?(Admin)
     return false unless user.is_a?(Customer)
-    customer_id == user.id && status == 'pending'
+    customer_id == user.id && status == "pending"
   end
 
   # 예약 확정 가능 여부 확인
@@ -34,13 +34,13 @@ class Reservation < ApplicationRecord
 
   def confirm!
     return false unless exam_schedule.can_reserve?(number_of_people)
-    
+
     ActiveRecord::Base.transaction do
       # 비관적 락 적용
-      locked_schedule = ExamSchedule.lock('FOR UPDATE').find(exam_schedule.id)
-      
+      locked_schedule = ExamSchedule.lock("FOR UPDATE").find(exam_schedule.id)
+
       if locked_schedule.can_reserve?(number_of_people)
-        update!(status: 'confirmed')
+        update!(status: "confirmed")
         locked_schedule.increment!(:current_reservations, number_of_people)
         true
       else
@@ -52,14 +52,14 @@ class Reservation < ApplicationRecord
   end
 
   def cancel!
-    return false if status == 'cancelled'
-    
+    return false if status == "cancelled"
+
     ActiveRecord::Base.transaction do
       # 비관적 락 적용
-      locked_schedule = ExamSchedule.lock('FOR UPDATE').find(exam_schedule.id)
-      
-      update!(status: 'cancelled')
-      locked_schedule.decrement!(:current_reservations, number_of_people) if status == 'confirmed'
+      locked_schedule = ExamSchedule.lock("FOR UPDATE").find(exam_schedule.id)
+
+      update!(status: "cancelled")
+      locked_schedule.decrement!(:current_reservations, number_of_people) if status == "confirmed"
       true
     end
   rescue ActiveRecord::LockWaitTimeout
@@ -69,11 +69,11 @@ class Reservation < ApplicationRecord
   private
 
   def set_default_status
-    self.status ||= 'pending'
+    self.status ||= "pending"
   end
 
   def update_exam_schedule_capacity
-    return unless status_changed? && status == 'confirmed'
+    return unless status_changed? && status == "confirmed"
     exam_schedule.increment!(:current_reservations, number_of_people)
   end
-end 
+end

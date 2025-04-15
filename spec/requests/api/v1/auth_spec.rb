@@ -6,15 +6,15 @@ RSpec.describe 'API V1 Auth', type: :request do
       tags '인증'
       consumes 'application/json'
       produces 'application/json'
-      
+
       parameter name: :login_params, in: :body, schema: {
         type: :object,
         properties: {
           email: { type: :string, example: 'user@example.com' },
           password: { type: :string, example: 'password123' },
-          user_type: { type: :string, enum: ['customer', 'admin'], example: 'customer' }
+          user_type: { type: :string, enum: [ 'customer', 'admin' ], example: 'customer' }
         },
-        required: ['email', 'password', 'user_type']
+        required: [ 'email', 'password', 'user_type' ]
       }
 
       response '200', '로그인 성공' do
@@ -32,7 +32,7 @@ RSpec.describe 'API V1 Auth', type: :request do
             },
             token: { type: :string }
           }
-        
+
         run_test!
       end
 
@@ -41,7 +41,7 @@ RSpec.describe 'API V1 Auth', type: :request do
           properties: {
             error: { type: :string }
           }
-        
+
         run_test!
       end
     end
@@ -52,7 +52,7 @@ RSpec.describe 'API V1 Auth', type: :request do
       tags '인증'
       consumes 'application/json'
       produces 'application/json'
-      
+
       parameter name: :register_params, in: :body, schema: {
         type: :object,
         properties: {
@@ -61,9 +61,9 @@ RSpec.describe 'API V1 Auth', type: :request do
           phone: { type: :string, example: '01012345678' },
           password: { type: :string, example: 'password123' },
           password_confirmation: { type: :string, example: 'password123' },
-          user_type: { type: :string, enum: ['customer'], example: 'customer' }
+          user_type: { type: :string, enum: [ 'customer' ], example: 'customer' }
         },
-        required: ['name', 'email', 'phone', 'password', 'password_confirmation', 'user_type']
+        required: [ 'name', 'email', 'phone', 'password', 'password_confirmation', 'user_type' ]
       }
 
       response '201', '회원가입 성공' do
@@ -81,7 +81,7 @@ RSpec.describe 'API V1 Auth', type: :request do
             },
             token: { type: :string }
           }
-        
+
         run_test!
       end
 
@@ -90,7 +90,7 @@ RSpec.describe 'API V1 Auth', type: :request do
           properties: {
             errors: { type: :object }
           }
-        
+
         run_test!
       end
     end
@@ -100,15 +100,15 @@ RSpec.describe 'API V1 Auth', type: :request do
     delete '로그아웃' do
       tags '인증'
       produces 'application/json'
-      
+
       response '200', '로그아웃 성공' do
         schema type: :object,
           properties: {
             message: { type: :string }
           }
-        
+
         run_test!
       end
     end
   end
-end 
+end

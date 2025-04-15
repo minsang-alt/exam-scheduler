@@ -47,7 +47,7 @@ exam_schedules = []
   exam_date = start_date + (i * 2).days
   start_time = exam_date.to_time.change(hour: 10) # 오전 10시 시작
   end_time = start_time + 3.hours # 3시간 시험
-  
+
   exam_schedule = ExamSchedule.find_or_create_by!(start_time: start_time) do |schedule|
     schedule.end_time = end_time
     schedule.max_capacity = 50000
@@ -55,7 +55,7 @@ exam_schedules = []
     schedule.is_available = true
     puts "시험 일정 생성 완료: #{schedule.start_time.strftime('%Y-%m-%d %H:%M')}"
   end
-  
+
   exam_schedules << exam_schedule
 end
 
@@ -64,32 +64,32 @@ puts "예약 데이터 생성 중..."
 customers.each do |customer|
   # 각 고객마다 랜덤하게 1~2개의 예약 생성
   reservations_count = rand(1..2)
-  
+
   reservations_count.times do
     # 랜덤한 시험 일정 선택
     exam_schedule = exam_schedules.sample
-    
+
     # 이미 해당 고객이 같은 시험에 예약했는지 확인
     next if Reservation.exists?(customer: customer, exam_schedule: exam_schedule)
-    
+
     # 랜덤한 인원수 (1~3명)
     number_of_people = rand(1..3)
-    
+
     # 랜덤한 상태 (pending, confirmed, cancelled 중 하나)
-    status = ['pending', 'confirmed', 'cancelled'].sample
-    
+    status = [ 'pending', 'confirmed', 'cancelled' ].sample
+
     reservation = Reservation.create!(
       exam_schedule: exam_schedule,
       customer: customer,
       number_of_people: number_of_people,
       status: status
     )
-    
+
     # 예약 인원수만큼 시험 일정의 현재 예약 인원 증가 (cancelled 상태가 아닌 경우에만)
     if status != 'cancelled'
       exam_schedule.increment!(:current_reservations, number_of_people)
     end
-    
+
     puts "예약 생성 완료: 고객 #{customer.name}, 시험일 #{exam_schedule.start_time.strftime('%Y-%m-%d')}, 인원 #{number_of_people}명, 상태: #{status}"
   end
 end

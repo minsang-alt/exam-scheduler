@@ -13,4 +13,4 @@ class CreateExamSchedules < ActiveRecord::Migration[7.1]
     add_index :exam_schedules, :start_time
     add_index :exam_schedules, :end_time
   end
-end 
+end

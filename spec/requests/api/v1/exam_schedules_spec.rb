@@ -5,8 +5,8 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
     get '시험 일정 목록 조회' do
       tags '시험 일정'
       produces 'application/json'
-      security [cookieAuth: [], bearerAuth: []]
-      
+      security [ cookieAuth: [], bearerAuth: [] ]
+
       response '200', '시험 일정 목록 조회 성공' do
         schema type: :object,
           properties: {
@@ -26,7 +26,7 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
               }
             }
           }
-        
+
         run_test!
       end
 
@@ -35,7 +35,7 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
           properties: {
             error: { type: :string }
           }
-        
+
         run_test!
       end
     end
@@ -47,8 +47,8 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
     get '시험 일정 상세 조회' do
       tags '시험 일정'
       produces 'application/json'
-      security [cookieAuth: [], bearerAuth: []]
-      
+      security [ cookieAuth: [], bearerAuth: [] ]
+
       response '200', '시험 일정 상세 조회 성공' do
         schema type: :object,
           properties: {
@@ -60,7 +60,7 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
             available_capacity: { type: :integer },
             is_available: { type: :boolean }
           }
-        
+
         run_test!
       end
 
@@ -69,7 +69,7 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
           properties: {
             error: { type: :string }
           }
-        
+
         run_test!
       end
 
@@ -78,9 +78,9 @@ RSpec.describe 'API V1 ExamSchedules', type: :request do
           properties: {
             error: { type: :string }
           }
-        
+
         run_test!
       end
     end
   end
-end 
+end

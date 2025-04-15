@@ -11,4 +11,4 @@ class CreateCustomers < ActiveRecord::Migration[7.1]
 
     add_index :customers, :email, unique: true
   end
-end 
+end

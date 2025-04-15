@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  mount Rswag::Ui::Engine => '/api-docs'
-  mount Rswag::Api::Engine => '/api-docs'
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -17,10 +17,10 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       # 시험 일정 관련
-      resources :exam_schedules, only: [:index, :show]
+      resources :exam_schedules, only: [ :index, :show ]
 
       # 예약 관련
-      resources :reservations, only: [:index, :show, :create, :update, :destroy] do
+      resources :reservations, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           post :confirm  # 예약 확정
           post :cancel   # 예약 취소
@@ -28,9 +28,9 @@ Rails.application.routes.draw do
       end
 
       # 인증 관련
-      post 'auth/login', to: 'auth#login'      # 로그인
-      post 'auth/register', to: 'auth#register' # 회원가입
-      delete 'auth/logout', to: 'auth#logout'   # 로그아웃
+      post "auth/login", to: "auth#login"      # 로그인
+      post "auth/register", to: "auth#register" # 회원가입
+      delete "auth/logout", to: "auth#logout"   # 로그아웃
     end
   end
 end

@@ -32,7 +32,7 @@ RSpec.configure do |config|
         schemas: {
           Customer: {
             type: 'object',
-            required: ['name', 'email', 'phone', 'password'],
+            required: [ 'name', 'email', 'phone', 'password' ],
             properties: {
               id: { type: 'integer', format: 'int64' },
               name: { type: 'string' },
@@ -42,7 +42,7 @@ RSpec.configure do |config|
           },
           Admin: {
             type: 'object',
-            required: ['name', 'email', 'password'],
+            required: [ 'name', 'email', 'password' ],
             properties: {
               id: { type: 'integer', format: 'int64' },
               name: { type: 'string' },
@@ -51,7 +51,7 @@ RSpec.configure do |config|
           },
           ExamSchedule: {
             type: 'object',
-            required: ['start_time', 'end_time'],
+            required: [ 'start_time', 'end_time' ],
             properties: {
               id: { type: 'integer', format: 'int64' },
               start_time: { type: 'string', format: 'date-time' },
@@ -63,12 +63,12 @@ RSpec.configure do |config|
           },
           Reservation: {
             type: 'object',
-            required: ['exam_schedule_id', 'number_of_people'],
+            required: [ 'exam_schedule_id', 'number_of_people' ],
             properties: {
               id: { type: 'integer', format: 'int64' },
               exam_schedule_id: { type: 'integer', format: 'int64' },
               number_of_people: { type: 'integer' },
-              status: { type: 'string', enum: ['pending', 'confirmed', 'cancelled'] }
+              status: { type: 'string', enum: [ 'pending', 'confirmed', 'cancelled' ] }
             }
           }
         },

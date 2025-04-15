@@ -163,4 +163,4 @@ RSpec.describe ExamSchedule, type: :model do
       expect(available_schedules).not_to include(unavailable_schedule)
     end
   end
-end 
+end

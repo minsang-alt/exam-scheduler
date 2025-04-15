@@ -2,13 +2,13 @@ module Api
   module V1
     class ExamSchedulesController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_exam_schedule, only: [:show]
+      before_action :set_exam_schedule, only: [ :show ]
 
       def index
         @exam_schedules = ExamSchedule.available_schedules
-        
+
         render json: {
-          schedules: @exam_schedules.map { |schedule| 
+          schedules: @exam_schedules.map { |schedule|
             {
               id: schedule.id,
               start_time: schedule.start_time,
@@ -42,8 +42,8 @@ module Api
 
       def authenticate_user!
         return if current_admin || current_customer
-        render json: { error: '인증이 필요합니다.' }, status: :unauthorized
+        render json: { error: "인증이 필요합니다." }, status: :unauthorized
       end
     end
   end
-end 
+end
