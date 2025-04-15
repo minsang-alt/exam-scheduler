@@ -3,7 +3,7 @@ module Api
     class ReservationsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_reservation, only: [:show, :update, :destroy, :confirm, :cancel]
-      before_action :authorize_customer, only: [:index, :create]
+      before_action :authorize_customer, only: [:create]
       before_action :authorize_modification, only: [:update, :destroy]
       before_action :authorize_admin, only: [:confirm]
 
