@@ -149,3 +149,8 @@ curl -X POST "http://localhost:3000/api/v1/reservations" \
     "number_of_people": 2
   }'
 ```
+
+---
+
+임시 사용자 아이디 및 비번: user@example.com , password123 , customer
+임시 관리자 아이디 및 비번: admin@example.com, password123 , admin
