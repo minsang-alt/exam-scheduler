@@ -1,10 +1,24 @@
 class Api::V1::AuthController < ApplicationController
+  skip_before_action :verify_authenticity_token
+
   def login
+    Rails.logger.debug "Login request received"
+    Rails.logger.debug "Request content type: #{request.content_type}"
+    Rails.logger.debug "Raw params: #{params.inspect}"
+    
+    # JSON 요청 데이터 추출
+    email = params[:email]
+    password = params[:password]
+    user_type = params[:user_type]
+    
+    Rails.logger.debug "Processing login for: Email=#{email}, Type=#{user_type}"
+    
     # 고객 로그인 처리
-    if params[:email].present? && params[:password].present? && params[:user_type] == 'customer'
-      customer = Customer.find_by(email: params[:email])
+    if email.present? && password.present? && user_type == 'customer'
+      customer = Customer.find_by(email: email)
+      Rails.logger.debug "Found customer: #{customer.inspect}"
       
-      if customer&.authenticate(params[:password])
+      if customer&.authenticate(password)
         # 세션에 고객 ID 저장
         session[:customer_id] = customer.id
         
@@ -26,10 +40,12 @@ class Api::V1::AuthController < ApplicationController
     end
     
     # 관리자 로그인 처리
-    if params[:email].present? && params[:password].present? && params[:user_type] == 'admin'
-      admin = Admin.find_by(email: params[:email])
+    if email.present? && password.present? && user_type == 'admin'
+      admin = Admin.find_by(email: email)
+      Rails.logger.debug "Found admin: #{admin.inspect} for email #{email}"
       
-      if admin&.authenticate(params[:password])
+      if admin&.authenticate(password)
+        Rails.logger.debug "Admin authenticated successfully"
         # 세션에 관리자 ID 저장
         session[:admin_id] = admin.id
         
@@ -47,10 +63,13 @@ class Api::V1::AuthController < ApplicationController
           token: token
         }
         return
+      else
+        Rails.logger.debug "Admin authentication failed for #{email}"
       end
     end
     
     # 로그인 실패
+    Rails.logger.debug "Login failed, rendering error"
     render json: { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }, status: :unauthorized
   end
 
