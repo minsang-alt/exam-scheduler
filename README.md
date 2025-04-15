@@ -35,7 +35,7 @@
 1. 저장소 클론
 
 ```bash
-git clone https://github.com/yourname/exam-scheduler.git
+git clone https://github.com/minsang-alt/exam-scheduler.git
 cd exam-scheduler
 ```
 
