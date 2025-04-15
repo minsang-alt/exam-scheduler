@@ -8,6 +8,9 @@ class Api::V1::AuthController < ApplicationController
         # 세션에 고객 ID 저장
         session[:customer_id] = customer.id
         
+        # JWT 토큰 생성
+        token = jwt_encode({ user_id: customer.id, user_type: 'customer', exp: 24.hours.from_now.to_i })
+        
         render json: {
           message: '로그인 성공',
           user: {
@@ -15,7 +18,8 @@ class Api::V1::AuthController < ApplicationController
             name: customer.name,
             email: customer.email,
             user_type: 'customer'
-          }
+          },
+          token: token
         }
         return
       end
@@ -29,6 +33,9 @@ class Api::V1::AuthController < ApplicationController
         # 세션에 관리자 ID 저장
         session[:admin_id] = admin.id
         
+        # JWT 토큰 생성
+        token = jwt_encode({ user_id: admin.id, user_type: 'admin', exp: 24.hours.from_now.to_i })
+        
         render json: {
           message: '로그인 성공',
           user: {
@@ -36,7 +43,8 @@ class Api::V1::AuthController < ApplicationController
             name: admin.name,
             email: admin.email,
             user_type: 'admin'
-          }
+          },
+          token: token
         }
         return
       end
@@ -58,8 +66,11 @@ class Api::V1::AuthController < ApplicationController
       )
       
       if customer.save
-        # 회원가입 성공 시 자동 로그인
+        # 세션에 고객 ID 저장
         session[:customer_id] = customer.id
+        
+        # JWT 토큰 생성
+        token = jwt_encode({ user_id: customer.id, user_type: 'customer', exp: 24.hours.from_now.to_i })
         
         render json: {
           message: '회원가입 성공',
@@ -68,7 +79,8 @@ class Api::V1::AuthController < ApplicationController
             name: customer.name,
             email: customer.email,
             user_type: 'customer'
-          }
+          },
+          token: token
         }, status: :created
       else
         render json: { errors: customer.errors }, status: :unprocessable_entity

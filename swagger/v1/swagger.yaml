@@ -1,0 +1,731 @@
+---
+openapi: 3.0.1
+info:
+  title: 시험 일정 예약 시스템 API
+  version: v1
+  description: 프로그래머스가 운영하는 온라인 시험 플랫폼 예약 시스템 API
+servers:
+- url: http://localhost:3000
+  description: 개발 서버
+components:
+  schemas:
+    Customer:
+      type: object
+      required:
+      - name
+      - email
+      - phone
+      - password
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+    Admin:
+      type: object
+      required:
+      - name
+      - email
+      - password
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    ExamSchedule:
+      type: object
+      required:
+      - start_time
+      - end_time
+      properties:
+        id:
+          type: integer
+          format: int64
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        max_capacity:
+          type: integer
+        current_reservations:
+          type: integer
+        is_available:
+          type: boolean
+    Reservation:
+      type: object
+      required:
+      - exam_schedule_id
+      - number_of_people
+      properties:
+        id:
+          type: integer
+          format: int64
+        exam_schedule_id:
+          type: integer
+          format: int64
+        number_of_people:
+          type: integer
+        status:
+          type: string
+          enum:
+          - pending
+          - confirmed
+          - cancelled
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  "/api/v1/auth/login":
+    post:
+      summary: 로그인
+      tags:
+      - 인증
+      parameters: []
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      user_type:
+                        type: string
+                  token:
+                    type: string
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+                user_type:
+                  type: string
+                  enum:
+                  - customer
+                  - admin
+                  example: customer
+              required:
+              - email
+              - password
+              - user_type
+  "/api/v1/auth/register":
+    post:
+      summary: 회원가입
+      tags:
+      - 인증
+      parameters: []
+      responses:
+        '201':
+          description: 회원가입 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      user_type:
+                        type: string
+                  token:
+                    type: string
+        '422':
+          description: 유효성 검증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 홍길동
+                email:
+                  type: string
+                  example: user@example.com
+                phone:
+                  type: string
+                  example: '01012345678'
+                password:
+                  type: string
+                  example: password123
+                password_confirmation:
+                  type: string
+                  example: password123
+                user_type:
+                  type: string
+                  enum:
+                  - customer
+                  example: customer
+              required:
+              - name
+              - email
+              - phone
+              - password
+              - password_confirmation
+              - user_type
+  "/api/v1/auth/logout":
+    delete:
+      summary: 로그아웃
+      tags:
+      - 인증
+      responses:
+        '200':
+          description: 로그아웃 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  "/api/v1/exam_schedules":
+    get:
+      summary: 시험 일정 목록 조회
+      tags:
+      - 시험 일정
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '200':
+          description: 시험 일정 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schedules:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        start_time:
+                          type: string
+                          format: date-time
+                        end_time:
+                          type: string
+                          format: date-time
+                        max_capacity:
+                          type: integer
+                        current_reservations:
+                          type: integer
+                        available_capacity:
+                          type: integer
+                        is_available:
+                          type: boolean
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  "/api/v1/exam_schedules/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: 시험 일정 상세 조회
+      tags:
+      - 시험 일정
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '200':
+          description: 시험 일정 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  start_time:
+                    type: string
+                    format: date-time
+                  end_time:
+                    type: string
+                    format: date-time
+                  max_capacity:
+                    type: integer
+                  current_reservations:
+                    type: integer
+                  available_capacity:
+                    type: integer
+                  is_available:
+                    type: boolean
+        '404':
+          description: 시험 일정 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  "/api/v1/reservations":
+    get:
+      summary: 예약 목록 조회
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '200':
+          description: 예약 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        exam_schedule:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            start_time:
+                              type: string
+                              format: date-time
+                            end_time:
+                              type: string
+                              format: date-time
+                        number_of_people:
+                          type: integer
+                        status:
+                          type: string
+                          enum:
+                          - pending
+                          - confirmed
+                          - cancelled
+                        created_at:
+                          type: string
+                          format: date-time
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    post:
+      summary: 예약 등록
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: 예약 등록 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  exam_schedule:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      start_time:
+                        type: string
+                        format: date-time
+                      end_time:
+                        type: string
+                        format: date-time
+                  number_of_people:
+                    type: integer
+                  status:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        '422':
+          description: 유효성 검증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exam_schedule_id:
+                  type: integer
+                  example: 1
+                number_of_people:
+                  type: integer
+                  example: 10
+              required:
+              - exam_schedule_id
+              - number_of_people
+  "/api/v1/reservations/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: 예약 상세 조회
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '200':
+          description: 예약 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  exam_schedule:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      start_time:
+                        type: string
+                        format: date-time
+                      end_time:
+                        type: string
+                        format: date-time
+                  number_of_people:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - pending
+                    - confirmed
+                    - cancelled
+                  created_at:
+                    type: string
+                    format: date-time
+        '404':
+          description: 예약 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    put:
+      summary: 예약 수정
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: 예약 수정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  exam_schedule:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      start_time:
+                        type: string
+                        format: date-time
+                      end_time:
+                        type: string
+                        format: date-time
+                  number_of_people:
+                    type: integer
+                  status:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '422':
+          description: 유효성 검증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: 권한 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number_of_people:
+                  type: integer
+                  example: 15
+              required:
+              - number_of_people
+    delete:
+      summary: 예약 삭제
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '204':
+          description: 예약 삭제 성공
+        '401':
+          description: 인증 실패
+        '403':
+          description: 권한 없음
+  "/api/v1/reservations/{id}/confirm":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: 예약 확정
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '200':
+          description: 예약 확정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: 권한 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '422':
+          description: 처리 불가
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  "/api/v1/reservations/{id}/cancel":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: 예약 취소
+      tags:
+      - 예약
+      security:
+      - cookieAuth: []
+        bearerAuth: []
+      responses:
+        '200':
+          description: 예약 취소 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: 권한 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '422':
+          description: 처리 불가
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

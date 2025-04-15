@@ -8,32 +8,26 @@ class Reservation < ApplicationRecord
   before_validation :set_default_status
   before_save :update_exam_schedule_capacity
 
-  /*
-  예약 수정 가능 여부 확인
-  - 관리자는 모든 예약을 수정할 수 있음
-  - 고객은 예약 상태가 pending인 경우에만 수정할 수 있음
-  */
+  # 예약 수정 가능 여부 확인
+  # - 관리자는 모든 예약을 수정할 수 있음
+  # - 고객은 예약 상태가 pending인 경우에만 수정할 수 있음
   def can_be_modified_by?(user)
     return true if user.is_a?(Admin)
     return false unless user.is_a?(Customer)
     customer_id == user.id && status == 'pending'
   end
 
-  /*
-  예약 삭제 가능 여부 확인
-  - 관리자는 모든 예약을 삭제할 수 있음
-  - 고객은 예약 상태가 pending인 경우에만 삭제할 수 있음
-  */
+  # 예약 삭제 가능 여부 확인
+  # - 관리자는 모든 예약을 삭제할 수 있음
+  # - 고객은 예약 상태가 pending인 경우에만 삭제할 수 있음
   def can_be_deleted_by?(user)
     return true if user.is_a?(Admin)
     return false unless user.is_a?(Customer)
     customer_id == user.id && status == 'pending'
   end
 
-  /*
-  예약 확정 가능 여부 확인
-  - 관리자만 확정할 수 있음
-  */
+  # 예약 확정 가능 여부 확인
+  # - 관리자만 확정할 수 있음
   def can_be_confirmed_by?(user)
     user.is_a?(Admin)
   end
