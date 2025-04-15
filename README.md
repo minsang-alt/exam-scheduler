@@ -94,6 +94,7 @@ http://localhost:3000/api-docs
 
 - `POST /api/v1/auth/register` - 회원가입
 - `POST /api/v1/auth/login` - 로그인
+- `DELETE /api/v1/auth/logout` - 로그아웃
 
 #### 시험 일정 API
 
@@ -105,8 +106,10 @@ http://localhost:3000/api-docs
 - `POST /api/v1/reservations` - 예약 생성
 - `GET /api/v1/reservations` - 사용자 예약 목록 조회
 - `GET /api/v1/reservations/:id` - 특정 예약 조회
-- `PATCH /api/v1/reservations/:id/confirm` - 예약 확정
-- `PATCH /api/v1/reservations/:id/cancel` - 예약 취소
+- `PUT /api/v1/reservations/:id` - 예약 수정
+- `DELETE /api/v1/reservations/:id` - 예약 삭제
+- `POST /api/v1/reservations/:id/confirm` - 예약 확정
+- `POST /api/v1/reservations/:id/cancel` - 예약 취소
 
 ## 테스트 실행
 
