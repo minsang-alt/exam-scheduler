@@ -45,20 +45,30 @@ cd exam-scheduler
 bundle install
 ```
 
-3. 데이터베이스 생성 및 마이그레이션
+3. PostgreSQL Docker 설정 및 실행
+
+```bash
+# PostgreSQL 컨테이너 실행
+docker run --name postgres-exam-scheduler -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:14
+
+# 컨테이너 실행 확인
+docker ps
+```
+
+4. 데이터베이스 생성 및 마이그레이션
 
 ```bash
 bin/rails db:create
 bin/rails db:migrate
 ```
 
-4. 테스트 데이터 생성 (선택사항)
+5. 테스트 데이터 생성 (선택사항)
 
 ```bash
 bin/rails db:seed
 ```
 
-5. 서버 실행
+6. 서버 실행
 
 ```bash
 bin/rails server
@@ -68,16 +78,28 @@ bin/rails server
 
 ### Docker를 사용한 실행
 
-1. 도커 이미지 빌드
+1. PostgreSQL Docker 실행
+
+```bash
+# PostgreSQL 컨테이너 실행
+docker run --name postgres-exam-scheduler -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:14
+
+# 환경 변수 설정 (애플리케이션 연결용)
+export DB_HOST=localhost
+export DB_USERNAME=postgres
+export DB_PASSWORD=postgres
+```
+
+2. 도커 이미지 빌드
 
 ```bash
 docker build -t exam-scheduler .
 ```
 
-2. 컨테이너 실행
+3. 컨테이너 실행
 
 ```bash
-docker run -p 3000:3000 -e DATABASE_URL=postgresql://user:password@host:port/dbname exam-scheduler
+docker run -p 3000:3000 -e DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/exam_scheduler_development exam-scheduler
 ```
 
 ## API 문서
@@ -152,5 +174,5 @@ curl -X POST "http://localhost:3000/api/v1/reservations" \
 
 ---
 
-임시 사용자 아이디 및 비번: user@example.com , password123 , customer
-임시 관리자 아이디 및 비번: admin@example.com, password123 , admin
+- 임시 사용자 아이디 및 비번: user@example.com , password123 , customer
+- 임시 관리자 아이디 및 비번: admin@example.com, password123 , admin
