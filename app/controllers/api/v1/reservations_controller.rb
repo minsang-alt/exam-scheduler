@@ -2,10 +2,10 @@ module Api
   module V1
     class ReservationsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_reservation, only: [:show, :update, :destroy, :confirm, :cancel]
-      before_action :authorize_customer, only: [:create]
-      before_action :authorize_modification, only: [:update, :destroy]
-      before_action :authorize_admin, only: [:confirm]
+      before_action :set_reservation, only: [ :show, :update, :destroy, :confirm, :cancel ]
+      before_action :authorize_customer, only: [ :create ]
+      before_action :authorize_modification, only: [ :update, :destroy ]
+      before_action :authorize_admin, only: [ :confirm ]
 
       def index
         @reservations = if current_admin
@@ -24,7 +24,7 @@ module Api
       def create
         ActiveRecord::Base.transaction do
           exam_schedule = ExamSchedule.lock("FOR UPDATE").find(params[:exam_schedule_id])
-          
+
           unless exam_schedule.can_reserve?(params[:number_of_people])
             return render_error("예약 가능한 인원을 초과했습니다.", :unprocessable_entity)
           end
@@ -48,7 +48,7 @@ module Api
         ActiveRecord::Base.transaction do
           with_locked_resources(@reservation) do |reservation, exam_schedule|
             return render_error("확정된 예약은 수정할 수 없습니다.", :unprocessable_entity) unless reservation.pending?
-            
+
             if needs_capacity_check?
               return render_error("예약 가능한 인원을 초과했습니다.", :unprocessable_entity) unless exam_schedule.can_reserve?(params[:number_of_people].to_i)
             end
@@ -97,11 +97,11 @@ module Api
         ActiveRecord::Base.transaction do
           with_locked_resources(@reservation) do |reservation, exam_schedule|
             return render_error("이미 취소된 예약입니다.", :unprocessable_entity) if reservation.cancelled?
-            
+
             was_confirmed = reservation.confirmed?
-            
+
             reservation.update!(status: "cancelled")
-            
+
             if was_confirmed
               exam_schedule.decrement!(:current_reservations, reservation.number_of_people)
             end
